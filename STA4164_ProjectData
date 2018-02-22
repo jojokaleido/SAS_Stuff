@@ -1,0 +1,108 @@
+#CODE FROM MY MULTIVARIATE PROJECT
+#DATA COLLECTED FROM AIRBNB RATES IN ORLANDO DURING A SPECIFIC WEEKEND IN 2015
+
+
+options linesize=100;
+data;
+input privacy $ property $ guests beds cost;
+if privacy = 'private' then dummy1=1; else dummy1 = 0;
+if property = 'house' then dummy2=1; else dummy2 = 0;
+datalines;
+private house 2 73
+private apt 2 67
+private apt 8 100
+private apt 4 263
+private apt 3 146
+private apt 5 110
+private house 6 100
+private apt 7 100
+private house 6 146
+private apt 2 134
+private apt 8 224
+private apt 8 56
+private apt 8 269
+private house 4 134
+private apt 3 212
+private apt 5 112
+private apt 6 206
+private apt 2 200
+private house 6 269
+private house 8 297
+private apt 6 167
+private apt 8 309
+private apt 6 196
+private house 4 224
+private house 10 207
+private apt 3 134
+private apt 3 185
+private house 6 302
+private apt 4 70
+shared house 2 87
+shared house 2 46
+shared house 2 56
+shared house 2 56
+shared house 2 64
+shared apt 4 59
+shared apt 2 50
+shared apt 2 81
+shared house 2 73
+shared house 2 65
+shared apt 2 50
+shared apt 2 73
+shared house 4 57
+shared house 4 93
+shared apt 2 63
+shared apt 2 55
+shared house 2 50
+shared apt 4 54
+shared house 1 67
+shared house 2 62
+shared apt 2 60
+shared house 2 73
+shared house 2 60
+shared house 2 78
+shared house 1 47
+shared house 4 64
+shared house 2 76
+shared house 2 100
+shared house 2 67
+shared houe 2 76
+shared house 2 88
+proc print;
+
+proc reg;
+model cost= dummy1 dummy2 guests beds;
+proc reg;
+model cost= dummy1 dummy2 guests;
+proc reg;
+model cost= dummy1 guests; 
+proc reg;
+model cost= dummy1 dummy2 guests/ vif p clm cli;
+output out=new r=resid cookd=cook;
+proc univariate normal plot;
+var resid;
+proc corr;
+var dummy1 dummy2 guests;
+proc print;
+run;
+
+
+
+-----------------------------------------
+WRITTEN REPORT (COPY/PASTED):
+
+The property sharing website called Airbnb was brought to life by two designers in 2008. They created a community of 25,000,000 travelers that have booked at least one night’s stay at apartments, houses, and even castles in 190 countries and 34,000 cities. With more than 1,000,000 listings, Airbnb has become the easiest way for hosts to monetize their properties and for travelers to explore the world.
+	In a recent search of Orlando, over 1000 spaces were available to rent for a night’s stay though Airbnb. Data of 60 observations for the regression analysis were collected. There are four main variables that could potentially explain the average price (including fees) for a one-night stay in Orlando. The most important factor is whether the space for rent is available as the entire property or if it is simply a room in a shared space. This makes it the first dummy variable of privacy. The next important variable is whether the property being rented is a house or an apartment/condo. This creates another dummy variable called property. Two other variables to consider are the maximum guest count the host will allow and how many beds are available for use. Both of these values range approximately from 1 to 10.
+	The relationship between cost and guests is skewed left. The observations only lay between 1-10, with most centered around two guests. This is to be expected since many people travel with only one companion. This also explains why the results for cost and bed count are similarly skewed right since most observations only had one bed available. 
+	Three models were analyzed using this data. First, consider Model One with all independent variables (Cost = Privacy Property Guests Beds). We calculate the overall model utility using the global F statistic of 18.51. Since this value is so high, the p-value is greater than 0.0001. This tells us the overall model is statistically useful in predicting average nightly rental costs for Orlando.
+	Secondly, since the individual p-value of Beds is over 0.264 in the full model, we remove it in the backward-elimination procedure. This becomes Model Two (Cost = Privacy Property Guests). This reduced model is compared to the full model. The F statistic is calculated to be 1.275. At a 95% confidence level we see the rejection region starts at 4.016 with 1 and 55 degrees of freedom. Since the test statistic of 1.275 isn’t greater than 4.016, we fail to reject the null. This tells us that the reduced model is more useful than the full model.
+	Thirdly, since the individual p-value of our second dummy variable of property type is 0.134, it is deleted. This becomes Model Three (Cost = Privacy Guests). To compare this reduced model with the full model, the new test statistic is 1.799. The rejection region at the 0.05 significance level with 2 and 55 degrees of freedom begins with 3.165. Once again, we fail to reject the null. This supports that the new reduced model is more useful than the full model.
+	Th next method in choosing a model is the analysis of the Mallow’s C(p) and R-square values of the three models. The full model has the ideal value of Cp equals 5 using four independent variables and the highest R-square of 0.574. Model Two has an R-square of 0.564 and a C(p) value of 4.275. Model Three has an R-square of 0.5459 and a C(p) value of 4.597. Although Model Three was the better choice compared to the full model in hypothesis testing, this C(p) value is far from the desired number of 3 for a model with 2 variables. Also, since the full model proved that bed count is not a useful predictor, we chose Model 2 to be the best.
+	Now that a model has been chosen, a check for collinearity is next. The variance inflation factors for each variable are all below 2. Since values under 10 are considered ideal, these low output values suggest that no collinearity problems exists. The Pearson’s Correlation Coefficients show that privacy and guests have the highest value of 0.692. This moderately high value suggests a large strength of association. This relationship is understandable because if the privacy of the rental is the entire location, it is expected that more people are allowed to stay there. More rooms equals more people.
+	From the fit diagnostics for the chosen model, the residuals form the shape of a fan that opens to the right.  This implies that a transformation, such as a square root or logarithmic function, is necessary to meet the assumption of homoscedasticity. 
+	In the next stage, diagnostic statistics are inspected for outliers. The histogram of residuals shows a normal distribution. The box plot also displays normality with two highly suspect outliers on both sides of the fences. From the normal quantile-quantile plot, the residuals appear to center around 0 and exhibit a positive linear trend. This indicates that the normality assumption is not badly violated. 
+	To further analyze possible outliers, jackknife residuals are compared to the critical value of 1.674 found from the t distribution of 55 (n-k-2) degrees of freedom and significance level of 0.05. There are 10 observations whose absolute value of the diagnostic statistics exceeds the critical value. This concludes that the observations of 4, 12, 27, and 28 need further scrutinization. 
+	In an investigation, observation 4 is a $263 high-rise luxury condo in downtown Orlando. This is why it is priced so high compared to most listings. Observation 12 is a $56 listing that can accommodate 8 people. This host also has three other listings not recorded in the data set, one as low as $40. His properties are lakeside. His prices are so low from expected, it could be a strategy to make certain his listings target more people. Observation 28 is a house with a pool in Winter Park near Park Avenue. This area is often more expensive for house prices so it makes sense the rental price will follow. Observation 27 can’t be found and the data is exactly the same as Observation 28 except for the identification name given to it. Unfortunately, it is highly likely that the same observation was recorded twice by mistake. Therefore, this data point must certainly be deleted.
+	The critical value to test the leverage values is 0.133 (2*(k+1)/n). The h(i) values greater than this number correspond to observations 1 and 25. This leads to the conclusion that these observations are extreme with respect to their independent variables. Putting the first observation under scrutiny, the listing is categorized as a $73 house for rent, but the information description section discloses that the property is actually referred to as a studio cottage. Airbnb must not have a category for this so this uncommon observation should be eliminated or put into the apartment property variable. Observation 25 is a $207 listing from a professional renter who has 18 other properties for rent. This is the only renter in the observed data that allows up to 10 guests. This observation should not be eliminated since there are more than 1000 properties that allow upwards of 10 guests in a private house with an average price of $220.
+	The Cook’s distance estimates of the regression coefficients show that no values exceed 1. Since the highest is just 0.182, it is safe to conclude this method shows no extreme outliers with respect to the predictor space.
+	In summary, there appears to be two issues that should be addressed before the model is ready for estimations and predictions. The assumption of constant error variance is grossly violated. A stabilizing transformation is necessary. Finally, the regression outliers should be further analyzed to decide if they are plausible enough to represent the population. Removing the outliers could produce a better fit. Therefore a new model with additional transformations and deletions is suggested to produce the best outcomes.
